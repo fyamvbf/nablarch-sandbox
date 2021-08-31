@@ -6,9 +6,10 @@
 |db/ddl/                     |Nablarchで使用するテーブルを作成するためのDDL。テーブルを作り直すときに使用するDROP文も用意している。                                                                             |
 |h2/bin/                     |H2 Database Engine(以下H2)に格納されているデータを確認するためのツールが格納されている(本プロジェクトは初期状態でH2を使用する構成になっている)。                                  |
 |h2/db/                      |H2のデータファイルが格納されているディレクトリ。H2のデータが壊れた際は、「SAMPLE.mv.db」を削除し、「SAMPLE.mv.db.org」を、「SAMPLE.mv.db」という名前でコピーすることで復旧できる。|
-|src/main/resources/         |設定ファイルを格納するディレクトリ                                                                                                                |
+|src/env/dev/resources/      |開発環境用の設定ファイルを格納するディレクトリ                                                                                                                                    |
+|src/env/prod/resources/     |本番環境用の設定ファイルを格納するディレクトリ                                                                                                                                    |
+|src/main/resources/         |開発環境、本番環境、共に使用する設定ファイルを格納するディレクトリ                                                                                                                |
 |src/test/resources/         |自動テスト(ユニットテスト)用の設定ファイルを格納するディレクトリ                                                                                                                  |
-|src/main/jib/               |Dockerコンテナに直接配置するファイルを格納するディレクトリ(詳細は[Jibのドキュメント](https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin#adding-arbitrary-files-to-the-image)を参照)|
 |tools/                      |mavenと連携して動作させるツールの設定を格納するディレクトリ                                                                                                                       |
 
 

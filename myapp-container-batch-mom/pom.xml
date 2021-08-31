@@ -8,7 +8,7 @@
     <version>5u19</version>
   </parent>
 
-  <artifactId>myapp-container-batch</artifactId>
+  <artifactId>myapp-container-batch-mom</artifactId>
 
   <groupId>com.example</groupId>
   <version>0.1.0</version>
@@ -29,9 +29,9 @@
     <nablarch.db.schema>PUBLIC</nablarch.db.schema>
     <!--
      JIBでDockerコンテナを作るときのベースイメージ
-     https://hub.docker.com/layers/adoptopenjdk/library/adoptopenjdk/11.0.11_9-jre-hotspot/images/sha256-df316691a2c655de2f835a626f8611c74af67dad2cf92711f6608b54e5aa6c61?context=explore
+     https://hub.docker.com/layers/openjdk/library/openjdk/11.0-jdk-oraclelinux8/images/sha256-5d933ac2f8a3a5508629838643ad244727c4694a6f3c15a25cb1f0bfda621236?context=explore
     -->
-    <jib.from.image>adoptopenjdk@sha256:df316691a2c655de2f835a626f8611c74af67dad2cf92711f6608b54e5aa6c61</jib.from.image>
+    <jib.from.image>adoptopenjdk:11-jre-hotspot</jib.from.image>
 
   </properties>
 
@@ -289,20 +289,32 @@
       <artifactId>slf4j-nablarch-adaptor</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <!-- MOMメッセージング用に追加したライブラリここから============================= -->
+    <dependency>
+      <groupId>com.nablarch.framework</groupId>
+      <artifactId>nablarch-fw-web-extension</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.nablarch.framework</groupId>
+      <artifactId>nablarch-fw-messaging</artifactId>
+    </dependency>
+    
+    <dependency>
+        <groupId>com.nablarch.framework</groupId>
+        <artifactId>nablarch-fw-messaging-mom</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-all</artifactId>
+        <version>5.13.0</version>
+    </dependency>
+    <!-- MOMメッセージング用に追加したライブラリここまで============================= -->
 
     <dependency>
       <groupId>com.nablarch.framework</groupId>
       <artifactId>nablarch-mail-sender</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.nablarch.framework</groupId>
-      <artifactId>nablarch-fw-web-extension</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.nablarch.framework</groupId>
-      <artifactId>nablarch-fw-messaging</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.nablarch.framework</groupId>
@@ -409,10 +421,12 @@
         <configuration>
           <container>
             <mainClass>nablarch.fw.launcher.Main</mainClass>
+            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
             <environment>
               <NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_INPUT>file:/var/nablarch/input</NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_INPUT>
               <NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_OUTPUT>file:/var/nablarch/output</NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_OUTPUT>
               <NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_FORMAT>file:/var/nablarch/format</NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_FORMAT>
+                <NABLARCH_JAVA_NAMING_PROVIDER_URL>tcp://host.docker.internal:61616</NABLARCH_JAVA_NAMING_PROVIDER_URL>
             </environment>
           </container>
         </configuration>

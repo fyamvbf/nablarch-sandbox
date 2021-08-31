@@ -8,24 +8,13 @@
   <!-- テーブル定義 -->
   <import file="nablarch/schema-config.xml" />
 
-  <!-- 精査に使用する文字集合定義 -->
-  <import file="nablarch/core/validation/charset-definition.xml"/>
-
-  <!-- DomainManager 実装クラス設定 -->
-  <component name="domainManager" class="com.example.domain.SampleDomainManager"/>
-
   <!-- 環境設定ファイル -->
-  <config-file file="common.properties"/>
-  <config-file file="env.properties"/>
+  <config-file file="common.properties" />
+  <config-file file="env.properties" />
 
   <!-- Nablarch共通機能 -->
-  <!-- コード機能 -->
-  <import file="nablarch/common/code.xml" />
-  <!-- 自動採番型を持たないRDBMSで、ユニバーサルDAOを使用するための設定 -->
-  <import file="nablarch/common/dao.xml" />
-  <!-- 日付 -->
-  <import file="nablarch/core/date.xml"/>
-
+  <!-- 採番機能 -->
+  <import file="nablarch/common/idgenerator.xml" />
 
   <!--
   バッチ固有の設定読み込み
@@ -34,12 +23,16 @@
   <import file="nablarch/batch/db-for-batch.xml" />
   <import file="data-source.xml"/>
 
-  <!-- ファイルパス設置 -->
+  <!-- ファイルパス設定 -->
   <import file="nablarch/batch/filepath-for-batch.xml" />
   <!-- スレッドコンテキスト機能 -->
   <import file="nablarch/batch/threadcontext-for-batch.xml" />
   <!-- 処理停止機能 -->
   <import file="nablarch/common/standalone/process-stop.xml" />
+  <!-- プロセス多重起動防止機能 -->
+  <import file="nablarch/common/standalone/duplicate-process-check.xml" />
+  <!-- コミットログ機能 -->
+  <import file="nablarch/common/standalone/commit-log.xml" />
   <!-- マルチスレッド実行制御機能 -->
   <import file="nablarch/common/standalone/multi-thread.xml" />
   <!-- プロセス常駐化機能 -->
@@ -49,12 +42,54 @@
   <!-- データリード機能 -->
   <import file="nablarch/batch/batch-data-read.xml" />
 
+  <!-- 文字列リソースのロードモジュール -->
+  <component name="stringResourceLoader"
+             class="nablarch.core.message.PropertiesStringResourceLoader">
+  </component>
+
+
+  <!-- メッセージング用コンポーネント定義ここから============================================================================================= -->
+  <component name="messagingProvider" class="nablarch.fw.messaging.provider.JndiLookingUpJmsMessagingProvider">
+    <property name="jndiHelper">
+      <component class="nablarch.core.repository.jndi.JndiHelper">
+        <property name="jndiProperties">
+          <map>
+            <entry key="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
+            <entry key="java.naming.provider.url"    value="${nablarch.java.naming.provider.url}"/>
+          </map>
+        </property>
+      </component>
+    </property>
+    <property name="connectionFactoryJndiName" value="ConnectionFactory"/>
+    <property name="destinationNamePairs">
+      <map>
+        <entry key="TEST.REQUEST"  value="dynamicQueues/TEST.REQUEST"/><!-- 送信先キュー名-->
+      </map>
+    </property>
+  </component>
+
+  <!-- messagingContextHandlerにメッセージングプロバイダを設定する。 -->
+  <component name="messagingContextHandler" class="nablarch.fw.messaging.handler.MessagingContextHandler">
+    <property name="messagingProvider" ref="messagingProvider" />
+  </component>
+
+  <!-- 非同期送信で使用するファイルパスの設定 -->
+  <component name="asyncMessageSendActionSettings" class="nablarch.fw.messaging.action.AsyncMessageSendActionSettings">
+    <property name="formatDir" value="format" />
+    <property name="headerFormatName" value="header" />                           <!-- フォーマットファイル名 -->
+    <property name="queueName" value="TEST.REQUEST" />                            <!-- 送信先キューの論理名 -->
+    <property name="sqlFilePackage" value="com.nablarch.example.sql" />                    <!-- SQLファイルの配置パス -->
+    <property name="formClassName"  value="com.nablarch.example.form.SendMessagingForm" /> <!-- Formファイルの配置パス -->
+    <property name="headerItemList">
+      <list>
+        <value>sendMessageSequence</value>
+      </list>
+    </property>
+  </component>
+  <!-- メッセージング用コンポーネント定義ここまで============================================================================================= -->
+
   <!-- ハンドラキュー構成 -->
   <list name="handlerQueue">
-
-    <!-- ****************************************
-    メインスレッド部
-    ****************************************-->
 
     <!-- ステータスコードを終了コードに変換するハンドラ -->
     <component class="nablarch.fw.handler.StatusCodeConvertHandler" />
@@ -79,18 +114,17 @@
 
     <!-- ディスパッチ -->
     <component class="nablarch.fw.handler.RequestPathJavaPackageMapping">
-      <property name="basePackage" value="${nablarch.commonProperty.basePackage}" />
+      <property name="basePackage" value="com.nablarch.example.action.ExampleAsyncMessageSendAction" />
       <property name="immediate" value="false" />
     </component>
 
     <!-- マルチスレッド実行制御ハンドラ -->
     <component-ref name="multiThreadExecutionHandler" />
 
-    <!--****************************************
-    リクエストスレッド部
-    ****************************************-->
+    <!-- メッセージコンテキスト管理ハンドラ -->
+    <component-ref name="messagingContextHandler" />
 
-    <!-- データベース接続管理ハンドラ -->
+    <!-- DB接続ハンドラ(業務処理用) -->
     <component-ref name="dbConnectionManagementHandler" />
 
     <!-- リクエストスレッドループ -->
@@ -102,7 +136,7 @@
     <!-- データリードハンドラ -->
     <component-ref name="dataReadHandler" />
 
-    <!-- トランザクション制御ハンドラ -->
+    <!-- トランザクションハンドラ(業務処理用) -->
     <component-ref name="transactionManagementHandler" />
 
   </list>
@@ -114,13 +148,11 @@
       <list>
         <!-- common/date.xml:業務日付コンポーネント -->
         <component-ref name="businessDateProvider" />
-        <!-- common/code.xml:コードのローダ -->
-        <component-ref name="codeLoader" />
-        <!-- common/code.xml:コードのキャッシュ -->
-        <component-ref name="codeCache" />
         <!-- batch/handler/processStop.xml:処理停止ハンドラ -->
         <component-ref name="processStopHandler" />
+        <component-ref name="idGenerator" />
       </list>
     </property>
   </component>
+
 </component-configuration>

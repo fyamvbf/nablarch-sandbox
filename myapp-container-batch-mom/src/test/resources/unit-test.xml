@@ -5,21 +5,13 @@
         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration https://nablarch.github.io/schema/component-configuration.xsd">
 
 
-  <import file="batch-boot.xml"/>
+  <import file="messaging-async-send-boot.xml"/>
 
-  <!-- TODO: 使用するDBに合せて設定してください。 -->
-  <!-- Oracle用の設定 -->
-  <!--
-    <import file="nablarch/test/test-db-info-oracle.xml"/>
-  -->
   <!-- 汎用のDB設定 -->
   <component name="dbInfo" class="nablarch.test.core.db.GenericJdbcDbInfo">
     <property name="dataSource" ref="dataSource"/>
     <property name="schema" value="${nablarch.db.schema}"/>
   </component>
-
-  <!-- テスト用設定 -->
-  <import file="override_test.xml"/>
 
   <!-- テスティングフレームワークの設定 -->
   <import file="nablarch/test/test-data.xml"/>
@@ -36,15 +28,10 @@
     <property name="backupSchema" value="PUBLIC"/>
     <!-- 監視対象テーブル一覧 -->
     <property name="tablesTobeWatched">
-      <list></list>
+      <list>
+        <value>ID_GENERATE</value>
+      </list>
     </property>
   </component>
 
-<!-- マスタデータ復旧機能の登録 -->
-<!--
-  <list name="testEventListeners">
-    <component class="nablarch.test.RepositoryInitializer"/>
-    <component-ref name="masterDataRestorer"/>
-  </list>
--->
 </component-configuration>

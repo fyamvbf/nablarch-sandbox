@@ -5,6 +5,6 @@
     xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration https://nablarch.github.io/schema/component-configuration.xsd">
 
   <!-- プロダクション用の設定読み込み -->
-  <import file="batch-component-configuration.xml"/>
+  <import file="messaging-async-send-component-configuration.xml"/>
 
 </component-configuration>
