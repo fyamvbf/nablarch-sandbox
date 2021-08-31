@@ -4,16 +4,16 @@ AWSのECS上で動作させるための調整をしたが、ソース自体は�
 ## AWSへの登録方法（概要）
 ※XXXXXの部分（各自のID）とap-northeast-1の部分は自身の環境に合わせること
 
-１．dockerイメージを作成
+１．dockerイメージを作成  
 `mvn clean package jib:dockerBuild`
 
-２．専用タグの付与
+２．専用タグの付与  
 `docker tag myapp-container-batch:latest XXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/nablarch-conainer-batch-example:myapp-container-batch`
 
-３．ログイン
+３．ログイン  
 `aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin XXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com`
 
-４．ECRにPUSH
+４．ECRにPUSH  
 `docker push XXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/nablarch-conainer-batch-example:myapp-container-batch`
 
 ５．AWS上でECSのタスク定義として作成し、タスクとして実行する。
