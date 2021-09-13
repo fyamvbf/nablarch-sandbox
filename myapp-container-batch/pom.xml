@@ -21,7 +21,7 @@
 
     <!-- gsp-dba-maven-pluginが使用するデータベース設定 -->
     <nablarch.db.jdbcDriver>org.h2.Driver</nablarch.db.jdbcDriver>
-    <nablarch.db.url>jdbc:h2:./src/main/jib/h2/db/SAMPLE</nablarch.db.url>
+    <nablarch.db.url>jdbc:h2:./h2/db/SAMPLE</nablarch.db.url>
     <nablarch.db.adminUser>SAMPLE</nablarch.db.adminUser>
     <nablarch.db.adminPassword>SAMPLE</nablarch.db.adminPassword>
     <nablarch.db.user>SAMPLE</nablarch.db.user>
@@ -383,25 +383,6 @@
           </archive>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>distribution.xml</descriptor>
-              </descriptors>
-              <finalName>${project.artifactId}-${project.version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <!-- Dockerコンテナ化 -->
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
@@ -410,7 +391,6 @@
           <container>
             <mainClass>nablarch.fw.launcher.Main</mainClass>
             <environment>
-              <NABLARCH_DB_URL>jdbc:h2:/h2/db/SAMPLE</NABLARCH_DB_URL>
               <NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_INPUT>file:/var/nablarch/input</NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_INPUT>
               <NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_OUTPUT>file:/var/nablarch/output</NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_OUTPUT>
               <NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_FORMAT>file:/var/nablarch/format</NABLARCH_FILEPATHSETTING_BASEPATHSETTINGS_FORMAT>
